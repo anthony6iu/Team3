@@ -4,6 +4,7 @@ import sqlite3
 import json
 import sys
 
+
 def handler(receive,database):
     action = receive['Action']
     if action == 'Login':
