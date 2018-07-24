@@ -22,17 +22,48 @@ while start:
 	post_msg = input("Enter >> ")
 	if not post_msg:
 		action = 'Logout'
-	else:
+		dicData = {
+			'Action' : action
+		}
+
+	elif post_msg == 'Login':
 		action = 'Login'
-	dicData = {
-		'Action' : action,
-		'username' : 'AnotherGuy',
-		'password' : "345"
-	}
+		dicData = {
+			'Action' : action,
+			'username' : 'AnotherGuy',
+			'password' : '345'
+		}
+
+	elif post_msg == 'Signup':
+		action = 'Signup'
+		dicData = {
+			'Action' : action,
+			'username' : 'newuser1',
+			'password' : 'newpwd1',
+			'firstname' : '',
+			'lastname' : '',
+			'email' : '',
+			'phone' : ''
+		}
+	elif post_msg == 'MakeRes':
+		action = 'MakeRes'
+		dicData = {
+			'Action' : action,
+			'username' : 'newuser1',
+			'moviename' : 'movie1',
+			'location' : 'location1',
+			'showtime' : '201801011250',
+			'seat' : '12'
+		}
+	else:
+		post_msg = ''
+		continue
+
 	jsoData = dtoj(dicData)
 	clientsocket.send(jsoData)
 
-	#clientsocket.send(post_msg.encode('utf-8'))
+	if action == 'Logout':
+		break
 
 	msg = clientsocket.recv(BUFSIZE)
 	"""

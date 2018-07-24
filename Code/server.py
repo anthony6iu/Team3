@@ -37,11 +37,12 @@ def threaded(cskt,addr):
 
 		now = time.strftime("%H:%M:%S")
 
-		print("[%s] %s : %s" % (str(now), addr, dicData))
-		print("[%s] %s : %s" % (str(now), addr, history))
+		print("[%s] FORM %s : %s" % (str(now), addr, dicData))
+		print("[%s] TO   %s : %s" % (str(now), addr, history))
 		# send message to client.
 		cskt.send(response_msg)
 
+	database.close()
 	cskt.close()
 	
 
@@ -65,6 +66,7 @@ def Main():
 	sskt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sskt.bind((host,port))
 	sskt.listen(5)
+	print("Movie ticket booking management system.\nWaiting for connection.....")
 	# server socket is already listening.
 	
 	while True:
