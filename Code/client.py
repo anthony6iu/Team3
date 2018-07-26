@@ -8,6 +8,10 @@ def dtoj(dirt_data):
 	json_data = json.dumps(dirt_data)
 	return json_data.encode('utf-8')
 
+def jtod(json_data):
+	json_data.decode('utf-8')
+	return json.loads(json_data)
+
 clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 
 host = socket.gethostname() 
@@ -18,9 +22,11 @@ clientsocket.connect((host, port))
 
 # send a request to server:
 start = True
+recv_msg = {}
 while start:
+
 	post_msg = input("Enter >> ")
-	if not post_msg:
+	if not post_msg or post_msg == 'Logout':
 		action = 'Logout'
 		dicData = {
 			'Action' : action
@@ -38,13 +44,32 @@ while start:
 		action = 'Signup'
 		dicData = {
 			'Action' : action,
-			'username' : 'newuser1',
+			'username' : 'newuser123',
 			'password' : 'newpwd1',
 			'firstname' : '',
 			'lastname' : '',
 			'email' : '',
 			'phone' : ''
 		}
+
+	elif post_msg == 'ReqAcc':
+		action = 'ReqAcc'
+		dicData = {
+			'Action' : action,
+			'username' : 'Name2'
+		}
+
+	elif post_msg == 'UpdAcc':
+		if recv_msg['Action'] == 'ReqAcc':
+			# change action from ReqAcc to UpdAcc
+			recv_msg['Action'] = 'UpdAcc'
+
+			if recv_msg['flag']:
+				recv_msg['phone'] = recv_msg['phone'] + 'C'
+				dicData = recv_msg
+			else:
+				dicData = recv_msg
+
 	elif post_msg == 'MakeRes':
 		action = 'MakeRes'
 		dicData = {
@@ -65,13 +90,18 @@ while start:
 	if action == 'Logout':
 		break
 
+
+
+
+	# receive handler.
 	msg = clientsocket.recv(BUFSIZE)
-	"""
-	if msg.decode('utf-8') == 'YES':
-		print("Code is correct.\n")
-	elif msg.decode('utf-8') == 'NO':
-		print("Code is wrong.\n")
-	"""
+	# handler.
+	recdata = jtod(msg)
+	if recdata['Action'] == 'ReqAcc':
+		recv_msg = recdata
+
+
+
 	print(msg.decode('utf-8'))
 
 clientsocket.close()
