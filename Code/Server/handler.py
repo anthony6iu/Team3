@@ -3,18 +3,23 @@
 import sqlite3
 import json
 import sys
+import time
 
 
 def handler(receive,database):
     action = receive['Action']
     if action == 'Login':
         return Login(receive,database)
+    elif action == 'Logout':
+        return Logout(receive,database)
     elif action == 'Signup':
         return Signup(receive,database)
     elif action == 'ReqAcc':
         return ReqAcc(receive,database)
     elif action == 'UpdAcc':
         return UpdAcc(receive,database)
+    elif action == 'Search':
+        return Search(receive,database)
     elif action == 'MakeRes':
         return MakeRes(receive,database)
 
@@ -23,15 +28,42 @@ def Login(receive,database):
     cur = database.cursor()
     cur = database.execute("SELECT Password FROM Customer WHERE Username = ?",(receive['username'],))
     rows = cur.fetchone()
-
-    if rows[0] == receive['password']:
-        flag = 'True'
+    if rows is None:
+        flag = False
+        note = 'No username matched.'
+    elif rows[0] == receive['password']:
+        flag = True
+        note = 'Logged in.'
     else:
-        flag = 'False'
+        flag = False
+        note = 'Wrong password.'
     send = {
         'Action' : 'Login',
-        'flag' : flag
+        'flag' : flag,
+        'note' : note
     }
+    if flag:
+        cur.execute("INSERT INTO Online (Username, Logintime) \
+        VALUES(?, ?)", (receive['username'],time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),))
+        database.commit()
+    return send
+
+def Logout(receive,database):
+
+    try:
+        cur = database.cursor()
+        cur.execute("DELETE FROM Online WHERE Username = ?",(receive['username'],))
+        database.commit()
+        send = {
+            'Action' : 'Logout',
+            'flag' : True
+        }
+    except:
+        send = {
+            'Action' : 'Logout',
+            'flag' : False
+        }
+
     return send
 
 
@@ -112,6 +144,36 @@ def Signup(receive,database):
     return send
 
 
+# Search handler.
+def Search(receive,database):
+
+    flag = True
+    content = []
+    try:
+        for a,b,c,d,e in database.execute("SELECT * FROM Movie WHERE " + receive['filter'] + " = ?",(receive['text'],)):
+            movie = {
+                'name' : b,
+                'type' : c,
+                'description' : d,
+                'actors' : e
+            }
+            print(movie)
+            content.insert(len(content)+1,movie)
+        send = {
+            'Action' : 'Search',
+            'flag' : flag,
+            'content' : content
+        }
+
+    except:
+        flag = False
+        send = {
+            'Action' : 'Search',
+            'flag' : flag
+        }
+    return send
+
+
 # MakeRes handler.
 def MakeRes(receive,database):
     cur = database.cursor()
@@ -125,5 +187,3 @@ def MakeRes(receive,database):
     }
     database.commit()
     return send
-
-

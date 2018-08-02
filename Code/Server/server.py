@@ -26,7 +26,14 @@ Post: server service start here.
 '''
 def threaded(cskt,addr):
 	# for each thread(client), creating a new connection to target database.
-	database = sqlite3.connect('ooad.db')
+	try:
+		database = sqlite3.connect('ooad.db')
+	except:
+		print('Database connection failed.')
+		exit()
+	print('Database is connected!')
+	
+	print('Thread is created.' + str(addr))
 
 	while True:		
 		# receive message from client.
@@ -35,7 +42,9 @@ def threaded(cskt,addr):
 		dicData = jtod(data)
 
 		action = dicData['Action']
-
+		if action == 'Quit':
+			print("%s Quit" % str(addr))
+			break
 		# call handler.
 		response_msg = handler(dicData,database)
 		# save response message as history (log).
@@ -43,23 +52,26 @@ def threaded(cskt,addr):
 		# transform dict type to json type.
 		response_msg = dtoj(response_msg)
 
-		# disconnect.
-		if dicData['Action'] == 'Logout':
-			print("%s Disconnected" % str(addr))
-			break
 
 		# print history to server screen( It can be written to server log file.).
-		now = time.strftime("%H:%M:%S")
+		now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 		print("[%s] FORM %s : %s" % (str(now), addr, dicData))
 		print("[%s] TO   %s : %s" % (str(now), addr, history))
 
 		# send message to client.
 		cskt.send(response_msg)
 
+		# disconnect.
+		if dicData['Action'] == 'Logout':
+			print("%s Logout" % str(addr))
+			break
+
 	# close database connection after client logout.
 	database.close()
 	# close client socket. (recycle)
 	cskt.close()
+	print('Thread is abort.' + str(addr))
+
 	
 
 
@@ -88,8 +100,7 @@ Pre : N/A
 Post: N/A
 '''
 def Main():
-	# Database set up.
-	database = sqlite3.connect('ooad.db')
+
 
 	# Server set up.
 	host = socket.gethostname()
