@@ -109,6 +109,25 @@ while homepage:
 			'filter' : 'Type'
 		}
 
+	elif post_msg == 'dis1':
+		dicData = {
+			'Action' : 'DisShow',
+			'text' : 'Chirstopher Robin',
+			'filter' : 'moviename'
+		}
+	elif post_msg == 'dis2':
+		dicData = {
+			'Action' : 'DisShow',
+			'text' : '201808021630',
+			'filter' : 'showtime'
+		}
+	elif post_msg == 'dis3':
+		dicData = {
+			'Action' : 'DisShow',
+			'text' : 'Bow Tie Criterion Cinemas',
+			'filter' : 'cinemaname'
+		}
+
 	elif post_msg == 'MakeRes':
 		action = 'MakeRes'
 		dicData = {
@@ -119,6 +138,10 @@ while homepage:
 			'showtime' : '201801011250',
 			'seat' : '12'
 		}
+	else:
+		print('Wrong Command.')
+		post_msg = ''
+		continue
 
 	jsoData = dtoj(dicData)
 	clientsocket.send(jsoData)
@@ -134,7 +157,13 @@ while homepage:
 		if recdata['flag']:
 			for movie in recdata['content']:
 				print(movie)
-	if recdata['Action'] == 'Logout':
+
+	elif recdata['Action'] == 'DisShow':
+		if recdata['flag']:
+			for show in recdata['content']:
+				print(show)
+
+	elif recdata['Action'] == 'Logout':
 		if recdata['flag']:
 			break
 		else:

@@ -20,6 +20,8 @@ def handler(receive,database):
         return UpdAcc(receive,database)
     elif action == 'Search':
         return Search(receive,database)
+    elif action == 'DisShow':
+        return DisShow(receive,database)
     elif action == 'MakeRes':
         return MakeRes(receive,database)
 
@@ -143,8 +145,10 @@ def Signup(receive,database):
     }
     return send
 
-
-# Search handler.
+'''
+Search handler.
+Demo for searching by Type.
+'''
 def Search(receive,database):
 
     flag = True
@@ -157,7 +161,6 @@ def Search(receive,database):
                 'description' : d,
                 'actors' : e
             }
-            print(movie)
             content.insert(len(content)+1,movie)
         send = {
             'Action' : 'Search',
@@ -171,6 +174,106 @@ def Search(receive,database):
             'Action' : 'Search',
             'flag' : flag
         }
+    return send
+
+
+'''
+Check Show table, and response wtih all attributes in Show table.
+receive message json format:
+{
+    'Action'  : 'DisShow',
+    'filter'    : 'moviename', # can be showtime, cinemaname as well.
+    'text' : 'keyword'
+}
+'''
+def DisShow(receive,database):
+    c1 = database.cursor()
+    content = []
+    send = {
+        'Action' : 'DisShow',
+        'flag' : False,
+        'content' : content
+    }
+    if receive['filter'] == 'moviename':
+        try:
+            c1.execute("SELECT Movieid, Showtime, Cinemaid, Screenid, Row0, Row1, Row2, Row3, Row4 FROM Show INNER JOIN Movie ON Show.Movieid = Movie.ID WHERE Movie.Name = ?",(receive['text'],))
+            shows = c1.fetchall()
+            for show in shows:
+                c1 = c1.execute("SELECT Cinemaname FROM Cinema WHERE Cinema.Cinemaid = ?",(show[2],))
+                cname = c1.fetchone()
+                cell = {
+                    'moviename' : receive['text'],
+                    'showtime' : show[1],
+                    'cinemaname' : cname[0],
+                    'screenid' : show[3],
+                    'row0' : show[4],
+                    'row1' : show[5],
+                    'row2' : show[6],
+                    'row3' : show[7],
+                    'row4' : show[8]
+                }
+
+                content.insert(len(content)+1, cell)
+            send['flag'] = True
+        except:
+            content = None
+
+    elif receive['filter'] == 'showtime':
+        try:
+            c1.execute("SELECT Movieid, Showtime, Cinemaid, Screenid, Row0, Row1, Row2, Row3, Row4 FROM Show WHERE Showtime = ?",(receive['text'],))
+            shows = c1.fetchall()
+            for show in shows:
+                c1 = c1.execute("SELECT Cinemaname FROM Cinema WHERE Cinemaid = ?",(show[2],))
+                cname = c1.fetchone()
+                c1 = c1.execute("SELECT Name FROM Movie WHERE ID = ?",(show[0],))
+                mname = c1.fetchone()
+                
+                cell = {
+                    'moviename' : mname[0],
+                    'showtime' : show[1],
+                    'cinemaname' : cname[0],
+                    'screenid' : show[3],
+                    'row0' : show[4],
+                    'row1' : show[5],
+                    'row2' : show[6],
+                    'row3' : show[7],
+                    'row4' : show[8]
+                }
+                content.insert(len(content)+1, cell)
+            send['flag'] = True
+        except:
+            content  = None
+
+    elif receive['filter'] == 'cinemaname':
+
+        try:
+            c1.execute("SELECT Cinemaid FROM Cinema WHERE Cinemaname = ?",(receive['text'],))
+            cid = c1.fetchone()
+            c1.execute("SELECT Movieid, Showtime, Cinemaid, Screenid, Row0, Row1, Row2, Row3, Row4 FROM Show WHERE Cinemaid = ?",(cid[0],))
+            shows = c1.fetchall()
+            for show in shows:
+                c1 = c1.execute("SELECT Name FROM Movie WHERE ID = ?",(show[0],))
+                mname = c1.fetchone()
+
+                cell = {
+                    'moviename' : mname[0],
+                    'showtime' : show[1],
+                    'cinemaname' : receive['text'],
+                    'screenid' : show[3],
+                    'row0' : show[4],
+                    'row1' : show[5],
+                    'row2' : show[6],
+                    'row3' : show[7],
+                    'row4' : show[8]
+                }
+                content.insert(len(content)+1, cell)
+            send['flag'] = True
+        except:
+            content = None
+
+    else:
+        content = None
+
     return send
 
 
