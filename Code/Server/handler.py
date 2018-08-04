@@ -10,20 +10,40 @@ def handler(receive,database):
     action = receive['Action']
     if action == 'Login':
         return Login(receive,database)
-    elif action == 'Logout':
-        return Logout(receive,database)
     elif action == 'Signup':
         return Signup(receive,database)
-    elif action == 'ReqAcc':
+    elif action == 'Logout' and isOnline(receive['user'],database):
+        return Logout(receive,database)
+    elif action == 'ReqAcc' and isOnline(receive['user'],database):
         return ReqAcc(receive,database)
-    elif action == 'UpdAcc':
+    elif action == 'UpdAcc' and isOnline(receive['user'],database):
         return UpdAcc(receive,database)
-    elif action == 'Search':
+    elif action == 'Search' and isOnline(receive['user'],database):
         return Search(receive,database)
-    elif action == 'DisShow':
+    elif action == 'DisShow' and isOnline(receive['user'],database):
         return DisShow(receive,database)
-    elif action == 'MakeRes':
+    elif action == 'MakeRes' and isOnline(receive['user'],database):
         return MakeRes(receive,database)
+    else:
+        return {
+            'Action' : 'Logout',
+            'flag' : True
+        }
+
+def isOnline(user,database):
+    try:
+        cur = database.cursor()
+        cur = database.execute("SELECT * FROM Online WHERE Username = ?",(user,))
+        obj = cur.fetchone()
+        if obj is None:
+            flag = False
+        else:
+            flag = True
+        print('tried')
+    except:
+        flag = False
+    print(flag)
+    return flag
 
 # Login handler.
 def Login(receive,database):
@@ -32,17 +52,21 @@ def Login(receive,database):
     rows = cur.fetchone()
     if rows is None:
         flag = False
-        note = 'No username matched.'
+        note = 'No username matched.',
+        user = None
     elif rows[0] == receive['password']:
         flag = True
-        note = 'Logged in.'
+        note = 'Logged in.',
+        user = receive['username']
     else:
         flag = False
-        note = 'Wrong password.'
+        note = 'Wrong password.',
+        user = None
     send = {
         'Action' : 'Login',
         'flag' : flag,
-        'note' : note
+        'note' : note,
+        'user' : user
     }
     if flag:
         cur.execute("INSERT INTO Online (Username, Logintime) \
@@ -79,6 +103,7 @@ def ReqAcc(receive,database):
         row = cur.fetchone()
         send = {
             'Action' : 'ReqAcc',
+            'user' : receive['username'],
             'flag' : True,
             'username' : receive['username'],
             'firstname' : row[0],
@@ -89,6 +114,7 @@ def ReqAcc(receive,database):
     except:
         send = {
             'Action' : 'ReqAcc',
+            'user' : receive['username'],
             'flag' : False,
             'username' : receive['username'],
             'firstname' : None,
@@ -107,6 +133,7 @@ def UpdAcc(receive,database):
     if not receive['flag']:
         send = {
             'Action' : 'UpdAcc',
+            'user' : receive['user'],
             'flag' : False
         }
         return send
@@ -118,8 +145,10 @@ def UpdAcc(receive,database):
         flag = False
 
     database.commit()
+    print('6666666')
     send = {
         'Action' : 'UpdAcc',
+        'user' : receive['user'],
         'flag' : flag
     }
     return send
@@ -172,7 +201,8 @@ def Search(receive,database):
         flag = False
         send = {
             'Action' : 'Search',
-            'flag' : flag
+            'flag' : flag,
+            'content' : None
         }
     return send
 

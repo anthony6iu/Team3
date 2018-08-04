@@ -2,6 +2,7 @@ import socket
 import sys
 import json
 
+global user
 BUFSIZE = 1024
 
 def dtoj(dirt_data):
@@ -33,9 +34,8 @@ while welcome:
 			'password' : '345'
 		}
 	elif command == 'Signup':
-		action = 'Signup'
 		dicData = {
-			'Action' : action,
+			'Action' : 'Signup',
 			'username' : 'newuser123',
 			'password' : 'newpwd1',
 			'firstname' : '',
@@ -65,6 +65,7 @@ while welcome:
 		if recdata['flag']:
 			homepage = True
 			command = ''
+			user = recdata['user']
 			break
 		else:
 			homepage = False
@@ -75,19 +76,19 @@ while homepage:
 
 	post_msg = input("Enter >> ")
 	if post_msg == 'Logout':
-		action = 'Logout'
 		dicData = {
-			'Action' : action,
+			'Action' : 'Logout',
+			'user' : user,
 			'username' : 'AnotherGuy'
 		}
 	elif post_msg == '':
 		continue
 
 	elif post_msg == 'ReqAcc':
-		action = 'ReqAcc'
 		dicData = {
-			'Action' : action,
-			'username' : 'Name2'
+			'Action' : 'ReqAcc',
+			'user' : user,
+			'username' : user
 		}
 
 	elif post_msg == 'UpdAcc':
@@ -102,9 +103,9 @@ while homepage:
 				dicData = recv_msg
 
 	elif post_msg == 'Search':
-		action = 'Search'
 		dicData = {
-			'Action' : action,
+			'Action' : 'Search',
+			'user' : user,
 			'text' : 'Action',
 			'filter' : 'Type'
 		}
@@ -112,26 +113,29 @@ while homepage:
 	elif post_msg == 'dis1':
 		dicData = {
 			'Action' : 'DisShow',
+			'user' : user,
 			'text' : 'Chirstopher Robin',
 			'filter' : 'moviename'
 		}
 	elif post_msg == 'dis2':
 		dicData = {
 			'Action' : 'DisShow',
+			'user' : user,
 			'text' : '201808021630',
 			'filter' : 'showtime'
 		}
 	elif post_msg == 'dis3':
 		dicData = {
 			'Action' : 'DisShow',
+			'user' : user,
 			'text' : 'Bow Tie Criterion Cinemas',
 			'filter' : 'cinemaname'
 		}
 
 	elif post_msg == 'MakeRes':
-		action = 'MakeRes'
 		dicData = {
-			'Action' : action,
+			'Action' : 'MakeRes',
+			'user' : user,
 			'username' : 'newuser1',
 			'moviename' : 'movie1',
 			'location' : 'location1',
