@@ -24,6 +24,12 @@ def handler(receive,database):
         return DisShow(receive,database)
     elif action == 'MakeRes' and isOnline(receive['user'],database):
         return MakeRes(receive,database)
+    elif action == 'Pay' and isOnline(receive['user'],database):
+        return Pay(receive,database)
+    elif action == 'ShowRes'and isOnline(receive['user'],database):
+        return ShowRes(receive,database)
+    elif action == 'CancRes' and isOnline(receive['user'],database):
+        return CancRes(receive,database)
     else:
         return {
             'Action' : 'Logout',
@@ -39,10 +45,8 @@ def isOnline(user,database):
             flag = False
         else:
             flag = True
-        print('tried')
     except:
         flag = False
-    print(flag)
     return flag
 
 # Login handler.
@@ -179,6 +183,48 @@ Search handler.
 Demo for searching by Type.
 '''
 def Search(receive,database):
+    content = []
+    cur = database.cursor()
+    try:
+        cur.execute("SELECT ID, Name FROM Movie WHERE " + receive['filter'] + " = ?",(receive['text'],))
+        movies = cur.fetchall()
+        if len(movies) == 0:
+            send = {
+                'Action' : 'Search',
+                'flag' : False,
+                'content' : None
+            }
+            return send
+        for movie in movies:
+            try:
+                cur.execute("SELECT Cinema.Cinemaname FROM Show INNER JOIN Cinema ON Show.Cinemaid = Cinema.Cinemaid WHERE Show.Movieid = ?",(movie[0],))
+                cname = cur.fetchone()
+                case = {
+                    'movie' : movie[1],
+                    'cinema' : cname[0]
+                }
+            except:
+                case = {
+                    'movie' : movie[1],
+                    'cinema' : None
+                }
+            content.insert(len(content)+1, case)
+        send = {
+            'Action' : 'Search',
+            'flag' : True,
+            'content' : content
+        }
+    except:
+        send = {
+            'Action' : 'Search',
+            'flag' : False,
+            'content' : None
+        }
+    return send
+
+
+'''
+def Search(receive,database):
 
     flag = True
     content = []
@@ -205,8 +251,7 @@ def Search(receive,database):
             'content' : None
         }
     return send
-
-
+'''
 '''
 Check Show table, and response wtih all attributes in Show table.
 receive message json format:
@@ -310,13 +355,110 @@ def DisShow(receive,database):
 # MakeRes handler.
 def MakeRes(receive,database):
     cur = database.cursor()
-    cur.execute("INSERT INTO Reservation (Resid, Username, Moviename, Location, Showtime, Seat) \
+    cur.execute("INSERT INTO Reservation (Resid, Username, Moviename, Cinemaname, Showtime, Seat) \
         VALUES (?, ?, ?, ?, ?, ?)",
          (None,receive['username'],receive['moviename'],
-            receive['location'],receive['showtime'],receive['seat']))
-    send = {
-        'Action' : 'MakeRes',
-        'flag' : 'True'
-    }
+            receive['cinemaname'],receive['showtime'],receive['seat']))
     database.commit()
+    try:
+        cur = database.cursor()
+        cur.execute("SELECT Resid FROM Reservation WHERE Username = ? AND Moviename = ? AND Cinemaname = ? AND Showtime = ? AND Seat = ?",
+            (receive['username'],receive['moviename'],receive['cinemaname'],receive['showtime'],receive['seat'],))
+        rid = cur.fetchone()
+        send = {
+            'Action' : 'MakeRes',
+            'flag'  : True,
+            'resid' : rid[0] 
+        }
+    except:
+        send = {
+            'Action' : 'MakeRes',
+            'flag'   : False
+        }
     return send
+
+
+#Pay session
+def Pay(receive,database):
+    #connect to 3rd party interface.
+    #return successful transaction.
+    #then...
+    cur = database.cursor()
+    try:
+        cur.execute("UPDATE Reservation SET Paid = 'YES' WHERE Resid = ?",(receive['resid'],))
+        database.commit()
+        send = {
+            'Action' : 'Pay',
+            'flag' : True
+        }
+    except:
+        send = {
+            'Action' : 'Pay',
+            'flag' : False
+        }
+    return send
+
+
+#Show this user all reservation infos.
+def ShowRes(receive,database):
+    cur = database.cursor()
+    content = []
+    try:
+        cur.execute("SELECT * FROM Reservation WHERE Username = ?",(receive['user'],))
+        ress = cur.fetchall()
+        if len(ress) == 0:
+            send = {
+                'Action' : 'ShowRes',
+                'flag' : False,
+                'content' : None
+            }
+            return send
+        for res in ress:
+            cell = {
+                'resid' : res[0],
+                'moviename' : res[2],
+                'cinemaname' : res[3],
+                'showtime' : res[4],
+                'seat' : res[5],
+                'paid' : res[6]
+            }
+            content.insert(len(content)+1, cell)
+        send = {
+            'Action' : 'ShowRes',
+            'flag' : True,
+            'content' : content
+        }
+    except:
+        send  = {
+            'Action' : 'ShowRes',
+            'flag' : False,
+            'content' : None
+        }
+    return send
+
+
+# Cancal reservation by given resid.
+def CancRes(receive,database):
+    try:
+        cur = database.cursor()
+        cur.execute("DELETE FROM Reservation WHERE Resid = ?",(receive['resid'],))
+        database.commit()
+        send = {
+            'Action' : 'CancRes',
+            'flag' : True
+        }
+    except:
+        send = {
+            'Action' : 'CancRes',
+            'flag' : False
+        }
+    return send
+
+
+
+
+
+
+
+
+

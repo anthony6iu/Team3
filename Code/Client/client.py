@@ -3,6 +3,7 @@ import sys
 import json
 
 global user
+global resid
 BUFSIZE = 1024
 
 def dtoj(dirt_data):
@@ -106,25 +107,26 @@ while homepage:
 		dicData = {
 			'Action' : 'Search',
 			'user' : user,
-			'text' : 'Action',
-			'filter' : 'Type'
+			'text' : 'Chirstopher',
+			'filter' : 'Name'
 		}
+		print(dicData)
 
-	elif post_msg == 'dis1':
+	elif post_msg == 'DisByMovieName':
 		dicData = {
 			'Action' : 'DisShow',
 			'user' : user,
 			'text' : 'Chirstopher Robin',
 			'filter' : 'moviename'
 		}
-	elif post_msg == 'dis2':
+	elif post_msg == 'DisByShowtime':
 		dicData = {
 			'Action' : 'DisShow',
 			'user' : user,
 			'text' : '201808021630',
 			'filter' : 'showtime'
 		}
-	elif post_msg == 'dis3':
+	elif post_msg == 'DisByCinemaname':
 		dicData = {
 			'Action' : 'DisShow',
 			'user' : user,
@@ -136,11 +138,28 @@ while homepage:
 		dicData = {
 			'Action' : 'MakeRes',
 			'user' : user,
-			'username' : 'newuser1',
+			'username' : user,
 			'moviename' : 'movie1',
-			'location' : 'location1',
+			'cinemaname' : 'location1',
 			'showtime' : '201801011250',
 			'seat' : '12'
+		}
+	elif post_msg == 'Pay':
+		dicData = {
+			'Action' : 'Pay',
+			'user' : user,
+			'resid' : resid
+		}
+	elif post_msg == 'ShowRes':
+		dicData = {
+			'Action' : 'ShowRes',
+			'user' : user
+		}
+	elif post_msg == 'CancRes':
+		dicData = {
+			'Action' : 'CancRes',
+			'user' : user,
+			'resid' : resid
 		}
 	else:
 		print('Wrong Command.')
@@ -161,11 +180,41 @@ while homepage:
 		if recdata['flag']:
 			for movie in recdata['content']:
 				print(movie)
+		else:
+			print('No result found.')
 
 	elif recdata['Action'] == 'DisShow':
 		if recdata['flag']:
 			for show in recdata['content']:
 				print(show)
+		else:
+			print('No result found.')
+
+	elif recdata['Action'] == 'MakeRes':
+		if recdata['flag']:
+			print('Reserve successfully.')
+			resid = recdata['resid']
+		else:
+			print('Reserve failed.')
+
+	elif recdata['Action'] == 'Pay':
+		if recdata['flag']:
+			print('Pay successfully.')
+		else:
+			print('Pay failed.')
+
+	elif recdata['Action'] == 'ShowRes':
+		if recdata['flag']:
+			for res in recdata['content']:
+				print(res)
+		else:
+			print('No result found.')
+
+	elif recdata['Action'] == 'CancRes':
+		if recdata['flag']:
+			print('Cancel successfully.')
+		else:
+			print('Cancel failed.')
 
 	elif recdata['Action'] == 'Logout':
 		if recdata['flag']:

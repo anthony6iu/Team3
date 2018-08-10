@@ -89,12 +89,13 @@ B. Login mode:
                 'flag'   : Flag   #Bool, True: update successful; False: fail.
             }
     3. Search():           #Search by different filter and text.
-        1. Format for send to server:
+        1. Format for sending to server:
             data = {
                 'Action' : 'Search',
                 'user'   : User,
                 'text'   : 'Keyword',  #The search word(str format).
-                'filter' : 'Keyword'   #The search by, can be: 'Type' by now.
+                'filter' : 'Keyword'   #The search by, can
+                                       #be:'Type' or 'Name' by now.
             }
         2. Format for receiving from server:
             data = {
@@ -103,8 +104,8 @@ B. Login mode:
                 'content' : Content   # A match results dictionary list.
             }
             Content = [
-                {'name' : 'Movie1', 'type' : 'Type1', 'description' : 'XXX', 'actors' : 'XXX,XXX'},
-                {'name' : 'Movie2', 'type' : 'Type2', 'description' : 'XXX', 'actors' : 'XXX,XXX'},
+                {'movie' : 'Movie1', 'cinema' : 'Cinema1'},
+                {'movie' : 'Movie2', 'cinema' : 'Cinema2'},
                 .
                 .
                 .
@@ -191,9 +192,61 @@ B. Login mode:
                 'Action' : 'Logout',
                 'flag'   : Flag         #If username not in Online table, fail.
             }
+    7. Pay():
+        1. Format for sending to server:
+            data = {
+                'Action' : 'Pay',
+                'user'   : User,
+                'resid'  : resid     #The Reservation ID that user want to pay.
+            }
+        2. Format for receiving from server:
+            data = {
+                'Action' :'Pay',
+                'flag'   : Flag      #Boolean: True or False.
+            }
+    8. ShowRes():
+        1. Format for sending to server:
+            data = {
+                'Action' : 'ShowRes',
+                'user'   : User      #Show this user's all reservation.
+            }
+        2. Format for receiving from server:
+            data = {
+                'Action'  : 'ShowRes',
+                'flag'    : Flag,           #False: if no matched content
+                'content' : Content
+            }
+            Content = [
+                {
+                    'resid' : ReservationID,
+                    'moviename' : moviename,
+                    'cinemaname' : cinemaname,
+                    'showtime' : 'XXXXXXXXXXXX',
+                    'seat' : 'XX',           # from left-up to right-down: 1-30
+                    'paid' : 'XXX'           # 'YES' or 'NO'
+                },
+                {
+                    ...
+                },
+                ...
+            ]
+    9. CancRes():
+        1. Format for sending to server:
+            data = {
+                'Action' : 'CancRes',
+                'user' : User,
+                'resid' : resid          #INT,Which reservation wants to cancel
+            }
+        2. Format for receiving from server:
+            data = {
+                'Action' : 'CancRes',
+                'flag' : Flag         #BOOLEAN: True or False.
+            }
+
 -------------------------------------------------------------------------------
-By now, I just coded these functions, I will keep in progress. If I changed former format, I will update this file.
----Hongchi.
+I updated Search() format, and added Pay(), ShowRes()(show reservation information) and CancRes()(cancel a reservation). Please check.
+--- Hongchi.
+Aug 9 20:04
 
 
 

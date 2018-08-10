@@ -49,7 +49,7 @@ def WelcomeGUI():
 
 	loginButton = Button(welcomeWindow, text='Login', command = lambda: Login(clientsocket))
 	loginButton.grid(row=3, column=1)
-	cancelButton = Button(welcomeWindow, text='Cancel', command = welcomeWindow.destroy)
+	cancelButton = Button(welcomeWindow, text='Quit', command = lambda: Quit(clientsocket,welcomeWindow))
 	cancelButton.grid(row=3, column=2)
 
 	welcomeWindow.mainloop()
@@ -76,6 +76,13 @@ def Login(cskt):
 		HomeGUI()
 	else:
 		wc_label1['text'] = recdata['note']
+def Quit(cskt,window):
+	dicData = {
+	'Action' : 'Quit'
+	}
+	jsoData = dtoj(dicData)
+	cskt.send(jsoData)
+	window.destroy()
 
 def ClientHandler(cskt,dicData):
 	jsoData = dtoj(dicData)
