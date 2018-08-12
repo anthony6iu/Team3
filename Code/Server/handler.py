@@ -20,6 +20,10 @@ def handler(receive,database):
         return UpdAcc(receive,database)
     elif action == 'Search' and isOnline(receive['user'],database):
         return Search(receive,database)
+    elif action == 'MovieInfo' and isOnline(receive['user'],database):
+        return MovieInfo(receive,database)
+    elif action == 'UpdAccount' and isOnline(receive['user'],database):
+        return UpdAccount(receive,database)
     elif action == 'DisShow' and isOnline(receive['user'],database):
         return DisShow(receive,database)
     elif action == 'DisSeat' and isOnline(receive['user'],database):
@@ -515,9 +519,46 @@ def CancRes(receive,database):
     return send
 
 
+def MovieInfo(receive, database):
+    c1 = database.cursor()
+    try:
+        c1.execute("SELECT Type, Description, Actors FROM Movie WHERE Name = ?",(receive['moviename'],))
+        info = c1.fetchone()
+        print(info)
+        send = {
+            'Action' : 'MovieInfo',
+            'flag' : True,
+            'type' : info[0],
+            'description' : info[1],
+            'actors' : info[2]
+        }
+        return send
+    except:
+        send = {
+            'Action' : 'MovieInfo',
+            'flag' : False,
+            'type' : None,
+            'description' : None,
+            'actors' : None
+        }
 
-
-
+def UpdAccount(receive, database):
+    c1 = database.cursor()
+    try:
+        cur.execute("UPDATE Customer SET Firstname = ?, Lastname = ?, Email = ?, Phone = ?, Password = ? WHERE Username = ?",
+            (receive['firstname'], receive['lastname'], receive['email'], receive['phone'], receive['password'], receive['username'],))
+        database.commit()
+        send = {
+            'Action' : 'UpdAccount',
+            'flag' : True
+        }
+        return send
+    except:
+        send = {
+            'Action' : 'UpdAccount',
+            'flag' : False
+        }
+        return send
 
 
 
