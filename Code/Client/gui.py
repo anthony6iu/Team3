@@ -44,7 +44,7 @@ def WelcomeGUI():
 
 	passwordText = Label(welcomeWindow, text='Password:')
 	passwordText.grid(row=2, column=1)
-	passwordInput = Entry(welcomeWindow)
+	passwordInput = Entry(welcomeWindow, show = '*')
 	passwordInput.grid(row=2, column=2)
 
 	loginButton = Button(welcomeWindow, text='Login', command = lambda: Login(clientsocket))
@@ -60,10 +60,27 @@ def HomeGUI():
 	homeWindow = Tk()
 	homeWindow.title("HomePage")
 	homeWindow.geometry('640x480')
+
+	filt = StringVar()
+
+	search_input = Entry(homeWindow)
+	search_filter_1 = Radiobutton(homeWindow, text = 'By Name',variable = filt, value = 'Name')
+	search_filter_2 = Radiobutton(homeWindow, text = 'By Location', variable = filt, value = 'Location')
+	search_content = Text(homeWindow, width = 30, height = 5)
+	search_button = Button(homeWindow, width = 14, height = 3, text = 'Search', command = lambda: Search(clientsocket, search_input.get(), filt.get(), search_content))
+	cancel_button = Button(homeWindow, text = 'Quit', command = lambda: Quit(clientsocket,homeWindow))
+
+	search_input.grid(row = 1)
+	search_filter_1.grid(row = 2)
+	search_filter_2.grid(row = 3)
+	search_button.grid(row = 4)
+	search_content.grid(row = 5)
+	cancel_button.grid(row = 6)
+
 	homeWindow.mainloop()
 
 def Login(cskt):
-	global account, logininfo
+	global user
 	logininfo = usernameInput.get()
 	password = passwordInput.get()
 	dicData = {
@@ -73,9 +90,31 @@ def Login(cskt):
 	}
 	recdata = ClientHandler(cskt,dicData)
 	if recdata['flag']:
+		user = logininfo
 		HomeGUI()
 	else:
 		wc_label1['text'] = recdata['note']
+
+
+
+
+def Search(cskt, text, filt, result):
+	dicData = {
+		'Action' : 'Search',
+		'user' : user,
+		'text' : text,
+		'filter' : filt
+	}
+	recdata = ClientHandler(cskt,dicData)
+	if recdata['flag']:
+		recdata = recdata['content']
+		result.insert(END,recdata)
+	else:
+		result = insert(END,'No result found.')
+
+
+
+
 def Quit(cskt,window):
 	dicData = {
 	'Action' : 'Quit'
@@ -92,8 +131,6 @@ def ClientHandler(cskt,dicData):
 	recdata = jtod(msg)
 
 	return recdata
-
-
 
 
 if __name__ == '__main__':

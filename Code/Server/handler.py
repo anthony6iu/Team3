@@ -197,18 +197,24 @@ def Search(receive,database):
             return send
         for movie in movies:
             try:
-                cur.execute("SELECT Cinema.Cinemaname FROM Show INNER JOIN Cinema ON Show.Cinemaid = Cinema.Cinemaid WHERE Show.Movieid = ?",(movie[0],))
-                cname = cur.fetchone()
-                case = {
+                cur.execute("SELECT Cinema.Cinemaname, Show.Showtime, Show.Screenid FROM Show INNER JOIN Cinema ON Show.Cinemaid = Cinema.Cinemaid WHERE Show.Movieid = ?",(movie[0],))
+                shows = cur.fetchall()
+                for show in shows:
+                    case = {
                     'movie' : movie[1],
-                    'cinema' : cname[0]
-                }
+                    'cinema' : show[0],
+                    'showtime' : show[1],
+                    'screen' : show[2]
+                    }
+                    content.insert(len(content)+1,case)
             except:
                 case = {
                     'movie' : movie[1],
-                    'cinema' : None
+                    'cinema' : None,
+                    'showtime' : None,
+                    'screen' : None
                 }
-            content.insert(len(content)+1, case)
+                content.insert(len(content)+1, case)
         send = {
             'Action' : 'Search',
             'flag' : True,
