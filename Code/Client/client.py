@@ -112,6 +112,13 @@ while homepage:
 		}
 		print(dicData)
 
+	elif post_msg == 'DisSeat':
+		dicData = {
+			'Action' : 'DisSeat',
+			'user' : user,
+			'sid' : 3
+		}
+
 	elif post_msg == 'DisByMovieName':
 		dicData = {
 			'Action' : 'DisShow',
@@ -182,6 +189,12 @@ while homepage:
 				print(movie)
 		else:
 			print('No result found.')
+
+	elif recdata['Action'] == 'DisSeat':
+		if recdata['flag']:
+			print(recdata)
+		else:
+			print('No Show infos found.')
 
 	elif recdata['Action'] == 'DisShow':
 		if recdata['flag']:

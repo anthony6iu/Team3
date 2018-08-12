@@ -22,6 +22,8 @@ def handler(receive,database):
         return Search(receive,database)
     elif action == 'DisShow' and isOnline(receive['user'],database):
         return DisShow(receive,database)
+    elif action == 'DisSeat' and isOnline(receive['user'],database):
+        return DisSeat(receive,database)
     elif action == 'MakeRes' and isOnline(receive['user'],database):
         return MakeRes(receive,database)
     elif action == 'Pay' and isOnline(receive['user'],database):
@@ -197,14 +199,15 @@ def Search(receive,database):
             return send
         for movie in movies:
             try:
-                cur.execute("SELECT Cinema.Cinemaname, Show.Showtime, Show.Screenid FROM Show INNER JOIN Cinema ON Show.Cinemaid = Cinema.Cinemaid WHERE Show.Movieid = ?",(movie[0],))
+                cur.execute("SELECT Cinema.Cinemaname, Show.Showtime, Show.Screenid, Show.Showid FROM Show INNER JOIN Cinema ON Show.Cinemaid = Cinema.Cinemaid WHERE Show.Movieid = ?",(movie[0],))
                 shows = cur.fetchall()
                 for show in shows:
                     case = {
                     'movie' : movie[1],
                     'cinema' : show[0],
                     'showtime' : show[1],
-                    'screen' : show[2]
+                    'screen' : show[2],
+                    'sid' : show[3]
                     }
                     content.insert(len(content)+1,case)
             except:
@@ -212,7 +215,8 @@ def Search(receive,database):
                     'movie' : movie[1],
                     'cinema' : None,
                     'showtime' : None,
-                    'screen' : None
+                    'screen' : None,
+                    'sid' : None
                 }
                 content.insert(len(content)+1, case)
         send = {
@@ -267,6 +271,37 @@ receive message json format:
     'text' : 'keyword'
 }
 '''
+
+def DisSeat(receive,database):
+    c1 = database.cursor()
+    try:
+        c1.execute("SELECT Row0, Row1, Row2, Row3, Row4 FROM Show WHERE Showid = ?",(receive['sid'],))
+        smap = c1.fetchone()
+        send = {
+            'Action' : 'DisSeat',
+            'flag' : True,
+            'sid' : receive['sid'],
+            'r0' : smap[0],
+            'r1' : smap[1],
+            'r2' : smap[2],
+            'r3' : smap[3],
+            'r4' : smap[4]
+        }
+        return send
+    except:
+        send = {
+            'Action' : 'DisSeat',
+            'flag' : False,
+            'sid' : receive['sid'],
+            'r0' : None,
+            'r1' : None,
+            'r2' : None,
+            'r3' : None,
+            'r4' : None
+        }
+        return send
+
+
 def DisShow(receive,database):
     c1 = database.cursor()
     content = []

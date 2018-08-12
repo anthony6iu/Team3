@@ -104,12 +104,32 @@ B. Login mode:
                 'content' : Content   # A match results dictionary list.
             }
             Content = [
-                {'movie' : 'Movie1', 'cinema' : 'Cinema1'},
-                {'movie' : 'Movie2', 'cinema' : 'Cinema2'},
+                {'movie' : 'Movie1', 'cinema' : 'Cinema1', 'showtime' : 'XXXXXXXXXXXX', 'screenid' : X, 'sid' : X},
+                {'movie' : 'Movie2', 'cinema' : 'Cinema2', 'showtime' : 'XXXXXXXXXXXX', 'screenid' : X, 'sid' : X},
                 .
                 .
                 .
             ]
+
+    3.5 DisSeat():          #Display seat map information.
+        1. Format for sending to server:
+            data = {
+                'Action' : 'DisSeat',
+                'user' : User,
+                'sid'  : X             #Integer, showid.(sid in search result.)
+            }
+        2. Format for receiving from server:
+            data = {
+                'Action' : 'DisSeat',
+                'flag'   : Flag,          #True or False.
+                'sid'    : X,
+                'r0'     : X,             #True: decimal, False: None.
+                'r1'     : X,
+                'r2'     : X,
+                'r3'     : X,
+                'r4'     : X
+            }
+
     4. DisShow():          #Display show informations.
         1. Format for sending to server:
             data = {
@@ -244,9 +264,9 @@ B. Login mode:
             }
 
 -------------------------------------------------------------------------------
-I updated Search() format, and added Pay(), ShowRes()(show reservation information) and CancRes()(cancel a reservation). Please check.
+I updated Search() format, and added DisSeat()(display seat information for given showid.)Please check.
 --- Hongchi.
-Aug 9 20:04
+Aug 11 23:49
 
 
 
