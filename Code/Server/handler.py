@@ -24,6 +24,8 @@ def handler(receive,database):
         return DisShow(receive,database)
     elif action == 'DisSeat' and isOnline(receive['user'],database):
         return DisSeat(receive,database)
+    elif action == 'UpdSeat' and isOnline(receive['user'],database):
+        return UpdSeat(receive,database)
     elif action == 'MakeRes' and isOnline(receive['user'],database):
         return MakeRes(receive,database)
     elif action == 'Pay' and isOnline(receive['user'],database):
@@ -301,6 +303,23 @@ def DisSeat(receive,database):
         }
         return send
 
+def UpdSeat(receive,database):
+    c1 = database.cursor()
+    try:
+        c1.execute("UPDATE Show SET Row0 = ?, Row1 = ?, Row2 = ?, Row3 = ?, Row4 = ? WHERE Showid = ?",
+            (receive['r0'],receive['r1'],receive['r2'],receive['r3'],receive['r4'],receive['sid'],))
+        database.commit()
+        send = {
+            'Action' : 'UpdSeat',
+            'flag' : True
+        }
+        return send
+    except:
+        send = {
+            "Action" : 'UpdSeat',
+            'flag' : False
+        }
+        return send
 
 def DisShow(receive,database):
     c1 = database.cursor()

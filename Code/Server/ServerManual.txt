@@ -130,6 +130,24 @@ B. Login mode:
                 'r4'     : X
             }
 
+    3.75. UpdSeat():
+        1. Format for sending to server:
+            data = {
+                'Action' : 'UpdSeat',
+                'user'   : User,
+                'sid'    : X,
+                'r0'     : X,
+                'r1'     : X,
+                'r2'     : X,
+                'r3'     : X,
+                'r4'     : X
+            }
+        2. Format for receiving from server:
+            data = {
+                'Action' : 'UpdSeat',
+                'flag' : Flag
+            }
+
     4. DisShow():          #Display show informations.
         1. Format for sending to server:
             data = {
@@ -264,9 +282,13 @@ B. Login mode:
             }
 
 -------------------------------------------------------------------------------
-I updated Search() format, and added DisSeat()(display seat information for given showid.)Please check.
+I updated Search() format, 3.5. DisSeat() format and 3.75. UpdSeat() format.
+-------
+I added DisSeat()(display seat information for given showid.) and UpdSeat()(update new seat map to database. ).
+-------
+Please check.
 --- Hongchi.
-Aug 11 23:49
+Aug 12 09:50
 
 
 
