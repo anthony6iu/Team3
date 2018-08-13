@@ -174,8 +174,8 @@ def Signup(receive,database):
     try:
         cur.execute("INSERT INTO Customer (Username, Password, Firstname, Lastname, Email, Phone) \
             VALUES (?, ?, ?, ?, ?, ?)",
-             (receive['username'],receive['password'],receive['firstname'],
-                receive['lastname'],receive['email'],receive['phone']))
+             (receive['username'],receive['password'],None,
+                None,None,None))
     except:
         flag = False
 
